@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>meubanco — clientes</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --border: #2a2a2a;
+    --accent: #00e5a0;
+    --accent-dim: #00e5a020;
+    --text: #f0f0f0;
+    --muted: #777;
+    --danger: #ff5f5f;
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  header {
+    max-width: 760px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+
+  header h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  header span {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem; }
+
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .sec-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sec-header .method {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .post { background: #00e5a015; color: var(--accent); border: 1px solid var(--accent)40; }
+  .get  { background: #5b8aff15; color: #5b8aff;       border: 1px solid #5b8aff40; }
+
+  .sec-header .route {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .sec-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; font-family: 'IBM Plex Mono', monospace; }
+
+  input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus { border-color: var(--accent); }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  button:active { transform: scale(0.98); }
+
+  .btn-inserir { background: var(--accent); color: #0f0f0f; }
+  .btn-buscar  { background: #5b8aff;       color: #fff; }
+  button:hover { opacity: 0.88; }
+
+  .msg {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    display: none;
+  }
+  .msg.ok  { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent)40; }
+  .msg.err { background: #ff5f5f15;         color: var(--danger);  border: 1px solid var(--danger)40; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #ffffff06; }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .id-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: var(--border);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>meubanco</h1>
+  <span>flask :4521 · postgres :5421</span>
+</header>
+
+<main>
+
+  <!-- INSERIR -->
+  <section>
+    <div class="sec-header">
+      <span class="method post">POST</span>
+      <span class="route">/clientes</span>
+    </div>
+    <div class="sec-body">
+      <div class="row">
+        <div>
+          <label>nome *</label>
+          <input type="text" id="nome" placeholder="Ana Souza">
+        </div>
+        <div>
+          <label>email *</label>
+          <input type="email" id="email" placeholder="ana@email.com">
+        </div>
+      </div>
+      <div>
+        <label>cidade</label>
+        <input type="text" id="cidade" placeholder="Porto Alegre">
+      </div>
+      <div>
+        <button class="btn-inserir" onclick="inserir()">+ inserir cliente</button>
+      </div>
+      <div class="msg" id="msg-inserir"></div>
+    </div>
+  </section>
+
+  <!-- CONSULTAR -->
+  <section>
+    <div class="sec-header">
+      <span class="method get">GET</span>
+      <span class="route">/clientes</span>
+    </div>
+    <div class="sec-body">
+      <div>
+        <button class="btn-buscar" onclick="buscar()">↓ buscar todos os clientes</button>
+      </div>
+      <div id="tabela-wrap"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+async function inserir() {
+  const nome   = document.getElementById('nome').value.trim();
+  const email  = document.getElementById('email').value.trim();
+  const cidade = document.getElementById('cidade').value.trim();
+  const msg    = document.getElementById('msg-inserir');
+
+  if (!nome || !email) {
+    mostrar(msg, 'nome e email são obrigatórios', false); return;
+  }
+
+  const res  = await fetch('/clientes', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ nome, email, cidade })
+  });
+  const data = await res.json();
+
+  if (res.ok) {
+    mostrar(msg, `✓ cliente inserido com id #${data.id}`, true);
+    document.getElementById('nome').value   = '';
+    document.getElementById('email').value  = '';
+    document.getElementById('cidade').value = '';
+  } else {
+    mostrar(msg, `erro: ${data.erro}`, false);
+  }
+}
+
+async function buscar() {
+  const wrap = document.getElementById('tabela-wrap');
+  const res  = await fetch('/clientes');
+  const data = await res.json();
+
+  if (!res.ok) { wrap.innerHTML = `<p class="empty">erro: ${data.erro}</p>`; return; }
+  if (data.length === 0) { wrap.innerHTML = '<p class="empty">nenhum cliente cadastrado</p>'; return; }
+
+  const linhas = data.map(c => `
+    <tr>
+      <td><span class="id-badge">#${c.id}</span></td>
+      <td>${c.nome}</td>
+      <td>${c.email}</td>
+      <td>${c.cidade || '—'}</td>
+      <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px">${c.criado_em ? c.criado_em.slice(0,16).replace('T',' ') : '—'}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>id</th><th>nome</th><th>email</th><th>cidade</th><th>criado em</th>
+      </tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>`;
+}
+
+function mostrar(el, texto, ok) {
+  el.textContent = texto;
+  el.className   = 'msg ' + (ok ? 'ok' : 'err');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+</script>
+
+</body>
+</html>
